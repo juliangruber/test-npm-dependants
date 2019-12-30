@@ -9,11 +9,11 @@ const { promisify } = require('util')
 const { spawn } = require('child_process')
 const { join } = require('path')
 const githubUrlToObject = require('github-url-to-object')
-const ora = require('ora')
+const Spinnies = require('spinnies')
 
 const run = async (dir, cmd) => {
   const segs = cmd.split(' ')
-  const ps = spawn(segs[0], segs.slice(1), { cwd: dir, stdio: 'inherit' })
+  const ps = spawn(segs[0], segs.slice(1), { cwd: dir })
   await promisify(ps.once.bind(ps))('exit')
 }
 
@@ -42,10 +42,12 @@ const main = async () => {
   if (!root.name || !root.version) {
     console.error('Usage: test-npm-dependants NAME VERSION')
   }
+  const spinnies = new Spinnies()
 
   for await (const dependant of dependants(root.name)) {
-    console.log(dependant)
-    const spinner = ora('Loading package information').start()
+    spinnies.add(dependant, {
+      text: `[${dependant}] Loading package information`
+    })
     const res = await fetch(`https://registry.npmjs.org/${dependant}`)
     const body = await res.json()
     const pkg = body.versions[body['dist-tags'].latest]
@@ -55,7 +57,7 @@ const main = async () => {
         tmpdir(),
         [pkg.name, pkg.version, Date.now(), Math.random()].join('-')
       )
-      spinner.text = 'Downloading package'
+      spinnies.update(pkg.name, { text: `[${dependant}] Downloading package` })
       await fs.mkdir(dir)
       try {
         await download(pkg, dir)
@@ -63,15 +65,18 @@ const main = async () => {
         console.error(err.message)
         continue
       }
-      spinner.text = 'Installing dependencies'
+      spinnies.update(pkg.name, {
+        text: `[${dependant}] Installing dependencies`
+      })
       await run(dir, 'npm install')
-      spinner.text = 'Running test suite'
+      spinnies.update(pkg.name, { text: `[${dependant}] Running test suite` })
       await run(dir, 'npm test')
-      console.log('Yes!')
+      spinnies.succeed(pkg.name)
     } else {
-      console.error("Package not found in dependant's latest version")
+      spinnies.fail(pkg.name, {
+        text: `[${dependant}] Package not found in dependant's latest version`
+      })
     }
-    spinner.stop()
   }
 }
 
