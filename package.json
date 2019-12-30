@@ -1,0 +1,21 @@
+{
+  "name": "test-npm-dependants",
+  "version": "0.0.0",
+  "license": "MIT",
+  "repository": "juliangruber/test-npm-dependants",
+  "description": "Run the test suites of all modules depending on a given module",
+  "scripts": {
+    "test": "prettier-standard && standard"
+  },
+  "dependencies": {
+    "github-url-to-object": "^4.0.4",
+    "node-fetch": "^2.6.0",
+    "npm-dependants": "^2.1.0",
+    "ora": "^4.0.3",
+    "semver": "^7.1.1"
+  },
+  "devDependencies": {
+    "prettier-standard": "^16.1.0",
+    "standard": "^14.3.1"
+  }
+}
