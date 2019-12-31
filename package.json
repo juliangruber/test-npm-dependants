@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "github-url-to-object": "^4.0.4",
-    "it-batch": "^1.0.3",
     "node-fetch": "^2.6.0",
     "npm-dependants": "^2.1.0",
     "semver": "^7.1.1",
