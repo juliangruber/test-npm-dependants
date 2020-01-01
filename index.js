@@ -11,6 +11,7 @@ const { join } = require('path')
 const Spinnies = require('spinnies')
 const fetchPackageSource = require('fetch-package-source')
 
+const run = promisify(exec)
 const cancel = (spinnies, name, text) => {
   spinnies.update(name, {
     text: `[${name}] ${text}`,
@@ -91,18 +92,18 @@ const main = async () => {
           spinnies.update(pkg.name, {
             text: `[${dependant}] Installing dependencies`
           })
-          await promisify(exec)('npm install', { cwd: dir })
+          await run('npm install', { cwd: dir })
           spinnies.update(pkg.name, {
             text: `[${dependant}] Installing ${root.name}@${root.version}`
           })
-          await promisify(exec)(`npm install ${root.name}@${root.version}`, {
+          await run(`npm install ${root.name}@${root.version}`, {
             cwd: dir
           })
           spinnies.update(pkg.name, {
             text: `[${dependant}] Running test suite`
           })
           try {
-            await promisify(exec)('npm test', { cwd: dir })
+            await run('npm test', { cwd: dir })
             spinnies.succeed(pkg.name, {
               text: `[${dependant}] Test suite passed`
             })
@@ -117,17 +118,14 @@ const main = async () => {
               text: `[${dependant}@next] Installing ${root.name}@${root.nextVersion}`,
               color: 'white'
             })
-            await promisify(exec)(
-              `npm install ${root.name}@${root.nextVersion}`,
-              {
-                cwd: dir
-              }
-            )
+            await run(`npm install ${root.name}@${root.nextVersion}`, {
+              cwd: dir
+            })
             spinnies.update(`${pkg.name}@next`, {
               text: `[${dependant}@next] Running test suite`
             })
             try {
-              await promisify(exec)('npm test', { cwd: dir })
+              await run('npm test', { cwd: dir })
               spinnies.succeed(`${pkg.name}@next`, {
                 text: `[${dependant}@next] Test suite passed`
               })
