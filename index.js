@@ -11,6 +11,16 @@ const { join } = require('path')
 const Spinnies = require('spinnies')
 const fetchPackageSource = require('fetch-package-source')
 
+const cancel = (spinnies, name, text) => {
+  spinnies.update(name, {
+    text: `[${name}] ${text}`,
+    color: 'gray'
+  })
+  setTimeout(() => {
+    spinnies.remove(name)
+  }, 3000)
+}
+
 const main = async () => {
   const root = {
     name: process.argv[2],
@@ -34,10 +44,7 @@ const main = async () => {
           const body = await res.json()
           const pkg = body.versions[body['dist-tags'].latest]
           if (!pkg.repository) {
-            spinnies.fail(pkg.name, {
-              text: `[${pkg.name}] No repository set`,
-              failColor: 'gray'
-            })
+            cancel(spinnies, pkg.name, 'No repository set')
             continue
           }
           const allDependencies = {
@@ -46,10 +53,11 @@ const main = async () => {
           }
           const range = allDependencies[root.name]
           if (!range || !semver.satisfies(root.version, range)) {
-            spinnies.fail(pkg.name, {
-              text: `[${pkg.name}] Package not found in dependant's latest version`,
-              failColor: 'gray'
-            })
+            cancel(
+              spinnies,
+              pkg.name,
+              "Package not found in dependant's latest version"
+            )
             continue
           }
 
@@ -69,10 +77,7 @@ const main = async () => {
           try {
             await fetchPackageSource(pkg.repository.url, pkg.version, dir)
           } catch (err) {
-            spinnies.fail(pkg.name, {
-              text: `[${pkg.name}] ${err.message}`,
-              failColor: 'gray'
-            })
+            cancel(spinnies, pkg.name, err.message)
             continue
           }
           spinnies.update(pkg.name, {
