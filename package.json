@@ -8,6 +8,7 @@
     "test": "prettier-standard && standard"
   },
   "dependencies": {
+    "fetch-package-source": "^1.0.0",
     "github-url-to-object": "^4.0.4",
     "node-fetch": "^2.6.0",
     "npm-dependants": "^2.1.0",
