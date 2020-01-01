@@ -34,7 +34,10 @@ const main = async () => {
           const body = await res.json()
           const pkg = body.versions[body['dist-tags'].latest]
           if (!pkg.repository) {
-            spinnies.fail(pkg.name, { text: `[${pkg.name}] No repository set` })
+            spinnies.fail(pkg.name, {
+              text: `[${pkg.name}] No repository set`,
+              failColor: 'gray'
+            })
             continue
           }
           const allDependencies = {
@@ -44,7 +47,8 @@ const main = async () => {
           const range = allDependencies[root.name]
           if (!range || !semver.satisfies(root.version, range)) {
             spinnies.fail(pkg.name, {
-              text: `[${pkg.name}] Package not found in dependant's latest version`
+              text: `[${pkg.name}] Package not found in dependant's latest version`,
+              failColor: 'gray'
             })
             continue
           }
@@ -65,7 +69,10 @@ const main = async () => {
           try {
             await fetchPackageSource(pkg.repository.url, pkg.version, dir)
           } catch (err) {
-            spinnies.fail(pkg.name, { text: `[${pkg.name}] ${err.message}` })
+            spinnies.fail(pkg.name, {
+              text: `[${pkg.name}] ${err.message}`,
+              failColor: 'gray'
+            })
             continue
           }
           spinnies.update(pkg.name, {
