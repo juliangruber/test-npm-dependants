@@ -11,6 +11,7 @@ const { join } = require('path')
 const Spinnies = require('spinnies')
 const fetchPackageSource = require('fetch-package-source')
 
+const removeDelay = 3000
 const run = promisify(exec)
 const cancel = (spinnies, name, text) => {
   spinnies.update(name, {
@@ -20,7 +21,7 @@ const cancel = (spinnies, name, text) => {
   setTimeout(() => {
     spinnies.remove(name)
     spinnies.remove(`${name}@next`)
-  }, 3000)
+  }, removeDelay)
 }
 
 const main = async () => {
@@ -30,7 +31,7 @@ const main = async () => {
     nextVersion: process.argv[4]
   }
   if (!root.name || !root.version) {
-    console.error('Usage: test-npm-dependants NAME VERSION')
+    console.error('Usage: test-npm-dependants NAME STABLEVERSION [NEXTVERSION]')
   }
   const spinnies = new Spinnies()
   const iterator = dependants(root.name)
@@ -45,7 +46,7 @@ const main = async () => {
           })
           if (root.nextVersion) {
             spinnies.add(`${dependant}@next`, {
-              text: `[${dependant}@next] Waiting`,
+              text: `[${dependant}+${root.nextVersion}] Waiting...`,
               color: 'gray'
             })
           }
@@ -92,7 +93,12 @@ const main = async () => {
           spinnies.update(pkg.name, {
             text: `[${dependant}] Installing dependencies`
           })
-          await run('npm install', { cwd: dir })
+          try {
+            await run('npm install', { cwd: dir })
+          } catch (_) {
+            cancel(spinnies, pkg.name, 'Installation failed')
+            continue
+          }
           spinnies.update(pkg.name, {
             text: `[${dependant}] Installing ${root.name}@${root.version}`
           })
@@ -102,37 +108,46 @@ const main = async () => {
           spinnies.update(pkg.name, {
             text: `[${dependant}] Running test suite`
           })
+          let stablePassed
           try {
             await run('npm test', { cwd: dir })
             spinnies.succeed(pkg.name, {
               text: `[${dependant}] Test suite passed`
             })
+            stablePassed = true
           } catch (_) {
             spinnies.fail(pkg.name, {
               text: `[${dependant}] Test suite failed`
             })
+            stablePassed = false
           }
 
           if (root.nextVersion) {
             spinnies.update(`${pkg.name}@next`, {
-              text: `[${dependant}@next] Installing ${root.name}@${root.nextVersion}`,
+              text: `[${dependant}+${root.nextVersion}] Installing ${root.name}@${root.nextVersion}`,
               color: 'white'
             })
             await run(`npm install ${root.name}@${root.nextVersion}`, {
               cwd: dir
             })
             spinnies.update(`${pkg.name}@next`, {
-              text: `[${dependant}@next] Running test suite`
+              text: `[${dependant}+${root.nextVersion}] Running test suite`
             })
             try {
               await run('npm test', { cwd: dir })
               spinnies.succeed(`${pkg.name}@next`, {
-                text: `[${dependant}@next] Test suite passed`
+                text: `[${dependant}+${root.nextVersion}] Test suite passed`
               })
             } catch (_) {
               spinnies.fail(`${pkg.name}@next`, {
-                text: `[${dependant}@next] Test suite failed`
+                text: `[${dependant}+${root.nextVersion}] Test suite failed`
               })
+              if (!stablePassed) {
+                setTimeout(() => {
+                  spinnies.remove(pkg.name)
+                  spinnies.remove(`${pkg.name}@next`)
+                }, removeDelay)
+              }
             }
           }
         }
