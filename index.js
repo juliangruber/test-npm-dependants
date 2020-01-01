@@ -6,16 +6,10 @@ const semver = require('semver')
 const { tmpdir } = require('os')
 const { promises: fs } = require('fs')
 const { promisify } = require('util')
-const { spawn } = require('child_process')
+const { exec } = require('child_process')
 const { join } = require('path')
 const Spinnies = require('spinnies')
 const fetchPackageSource = require('fetch-package-source')
-
-const run = async (dir, cmd) => {
-  const segs = cmd.split(' ')
-  const ps = spawn(segs[0], segs.slice(1), { cwd: dir })
-  await promisify(ps.once.bind(ps))('exit')
-}
 
 const main = async () => {
   const root = {
@@ -77,12 +71,26 @@ const main = async () => {
           spinnies.update(pkg.name, {
             text: `[${dependant}] Installing dependencies`
           })
-          await run(dir, 'npm install')
+          await promisify(exec)('npm install', { cwd: dir })
+          spinnies.update(pkg.name, {
+            text: `[${dependant}] Installing ${root.name}@${root.version}`
+          })
+          await promisify(exec)(`npm install ${root.name}@${root.version}`, {
+            cwd: dir
+          })
           spinnies.update(pkg.name, {
             text: `[${dependant}] Running test suite`
           })
-          await run(dir, 'npm test')
-          spinnies.succeed(pkg.name)
+          try {
+            await promisify(exec)('npm test', { cwd: dir })
+            spinnies.succeed(pkg.name, {
+              text: `[${dependant}] Test suite passed`
+            })
+          } catch (_) {
+            spinnies.fail(pkg.name, {
+              text: `[${dependant}] Test suite failed`
+            })
+          }
         }
       })
   )
