@@ -18,13 +18,15 @@ const cancel = (spinnies, name, text) => {
   })
   setTimeout(() => {
     spinnies.remove(name)
+    spinnies.remove(`${name}@next`)
   }, 3000)
 }
 
 const main = async () => {
   const root = {
     name: process.argv[2],
-    version: process.argv[3]
+    version: process.argv[3],
+    nextVersion: process.argv[4]
   }
   if (!root.name || !root.version) {
     console.error('Usage: test-npm-dependants NAME VERSION')
@@ -40,6 +42,12 @@ const main = async () => {
           spinnies.add(dependant, {
             text: `[${dependant}] Loading package information`
           })
+          if (root.nextVersion) {
+            spinnies.add(`${dependant}@next`, {
+              text: `[${dependant}@next] Waiting`,
+              color: 'gray'
+            })
+          }
           const res = await fetch(`https://registry.npmjs.org/${dependant}`)
           const body = await res.json()
           const pkg = body.versions[body['dist-tags'].latest]
@@ -102,6 +110,32 @@ const main = async () => {
             spinnies.fail(pkg.name, {
               text: `[${dependant}] Test suite failed`
             })
+          }
+
+          if (root.nextVersion) {
+            spinnies.update(`${pkg.name}@next`, {
+              text: `[${dependant}@next] Installing ${root.name}@${root.nextVersion}`,
+              color: 'white'
+            })
+            await promisify(exec)(
+              `npm install ${root.name}@${root.nextVersion}`,
+              {
+                cwd: dir
+              }
+            )
+            spinnies.update(`${pkg.name}@next`, {
+              text: `[${dependant}@next] Running test suite`
+            })
+            try {
+              await promisify(exec)('npm test', { cwd: dir })
+              spinnies.succeed(`${pkg.name}@next`, {
+                text: `[${dependant}@next] Test suite passed`
+              })
+            } catch (_) {
+              spinnies.fail(`${pkg.name}@next`, {
+                text: `[${dependant}@next] Test suite failed`
+              })
+            }
           }
         }
       })
