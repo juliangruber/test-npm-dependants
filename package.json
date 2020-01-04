@@ -4,6 +4,9 @@
   "license": "MIT",
   "repository": "juliangruber/test-npm-dependants",
   "description": "Run the test suites of all modules depending on a given module",
+  "bin": {
+    "test-npm-dependants": "bin/test-npm-dependants.js"
+  },
   "scripts": {
     "test": "prettier-standard && standard"
   },
