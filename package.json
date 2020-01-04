@@ -11,6 +11,7 @@
     "test": "prettier-standard && standard"
   },
   "dependencies": {
+    "@cto.ai/sdk": "^2.0.3",
     "fetch-package-source": "^1.0.0",
     "github-url-to-object": "^4.0.4",
     "node-fetch": "^2.6.0",
