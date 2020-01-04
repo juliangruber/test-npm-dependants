@@ -14,7 +14,7 @@ ADD . .
 ############################
 # Final container
 ############################
-FROM node:12-alpine
+FROM registry.cto.ai/official_images/node:latest
 
 WORKDIR /ops
 
