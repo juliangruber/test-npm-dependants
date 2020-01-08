@@ -8,17 +8,17 @@ const main = async () => {
     {
       type: 'input',
       name: 'name',
-      message: 'Name of the module to test?'
+      message: 'Name of the module to test'
     },
     {
       type: 'input',
       name: 'version',
-      message: 'Stable version of the module?'
+      message: 'Stable version of the module'
     },
     {
       type: 'input',
       name: 'nextVersion',
-      message: 'Next version of the module?'
+      message: 'Next version of the module'
     }
   ])
 
