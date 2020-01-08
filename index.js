@@ -33,10 +33,7 @@ const test = async ({ name, version, nextVersion }) => {
   const render = createRender()
   const diff = differ()
   diff.pipe(process.stdout)
-  const iv = setInterval(() => {
-    diff.reset()
-    diff.write(render(state))
-  }, 100)
+  const iv = setInterval(() => diff.write(render(state)), 100)
 
   await Promise.all(
     Array(5)
