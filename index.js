@@ -8,46 +8,54 @@ const { promises: fs } = require('fs')
 const { promisify } = require('util')
 const { exec } = require('child_process')
 const { join } = require('path')
-const Spinnies = require('spinnies')
 const fetchPackageSource = require('fetch-package-source')
+const createRender = require('./lib/render')
+const differ = require('ansi-diff-stream')
 
 const removeDelay = 3000
 const run = promisify(exec)
-const cancel = (spinnies, name, text) => {
-  spinnies.update(name, {
-    text: `[${name}] ${text}`,
-    color: 'gray'
-  })
+const cancel = (state, dependantState, text) => {
+  dependantState.status = text
   setTimeout(() => {
-    spinnies.remove(name)
-    spinnies.remove(`${name}@next`)
+    const idx = state.dependants.indexOf(dependantState)
+    state.dependants.splice(idx, 1)
   }, removeDelay)
 }
 
 const test = async ({ name, version, nextVersion }) => {
   const root = { name, version, nextVersion }
-  const spinnies = new Spinnies()
   const iterator = dependants(root.name)
+
+  const state = {
+    ...root,
+    dependants: []
+  }
+  const render = createRender()
+  const diff = differ()
+  diff.pipe(process.stdout)
+  const iv = setInterval(() => {
+    diff.reset()
+    diff.write(render(state))
+  }, 100)
 
   await Promise.all(
     Array(5)
       .fill()
       .map(async () => {
         for await (const dependant of iterator) {
-          spinnies.add(dependant, {
-            text: `[${dependant}] Loading package information`
-          })
-          if (root.nextVersion) {
-            spinnies.add(`${dependant}@next`, {
-              text: `[${dependant}+${root.nextVersion}] Waiting...`,
-              color: 'gray'
-            })
+          const dependantState = {
+            name: dependant,
+            status: 'Loading package information',
+            version: { loading: true, pass: false },
+            nextVersion: { loading: true, pass: false }
           }
+          state.dependants.push(dependantState)
+
           const res = await fetch(`https://registry.npmjs.org/${dependant}`)
           const body = await res.json()
           const pkg = body.versions[body['dist-tags'].latest]
           if (!pkg.repository) {
-            cancel(spinnies, pkg.name, 'No repository set')
+            cancel(state, dependantState, 'No repository set')
             continue
           }
           const allDependencies = {
@@ -57,8 +65,8 @@ const test = async ({ name, version, nextVersion }) => {
           const range = allDependencies[root.name]
           if (!range || !semver.satisfies(root.version, range)) {
             cancel(
-              spinnies,
-              pkg.name,
+              state,
+              dependantState,
               "Package not found in dependant's latest version"
             )
             continue
@@ -73,79 +81,55 @@ const test = async ({ name, version, nextVersion }) => {
               Math.random()
             ].join('-')
           )
-          spinnies.update(pkg.name, {
-            text: `[${dependant}] Downloading package`
-          })
+          dependantState.status = 'Downloading package'
           await fs.mkdir(dir)
           try {
             await fetchPackageSource(pkg.repository.url, pkg.version, dir)
           } catch (err) {
-            cancel(spinnies, pkg.name, err.message)
+            cancel(state, dependantState, err.message)
             continue
           }
-          spinnies.update(pkg.name, {
-            text: `[${dependant}] Installing dependencies`
-          })
+          dependantState.status = 'Installing dependencies'
           try {
             await run('npm install', { cwd: dir })
           } catch (_) {
-            cancel(spinnies, pkg.name, 'Installation failed')
+            cancel(state, dependantState, 'Installation failed')
             continue
           }
-          spinnies.update(pkg.name, {
-            text: `[${dependant}] Installing ${root.name}@${root.version}`
-          })
+          dependantState.status = `Installing ${root.name}@${root.version}`
           await run(`npm install ${root.name}@${root.version}`, {
             cwd: dir
           })
-          spinnies.update(pkg.name, {
-            text: `[${dependant}] Running test suite`
-          })
-          let stablePassed
+          dependantState.status = 'Running test suite'
           try {
             await run('npm test', { cwd: dir })
-            spinnies.succeed(pkg.name, {
-              text: `[${dependant}] Test suite passed`
-            })
-            stablePassed = true
-          } catch (_) {
-            spinnies.fail(pkg.name, {
-              text: `[${dependant}] Test suite failed`
-            })
-            stablePassed = false
-          }
+            dependantState.version.pass = true
+          } catch (_) {}
+          dependantState.version.loading = false
+          dependantState.status = ''
 
           if (root.nextVersion) {
-            spinnies.update(`${pkg.name}@next`, {
-              text: `[${dependant}+${root.nextVersion}] Installing ${root.name}@${root.nextVersion}`,
-              color: 'white'
-            })
+            dependantState.status = `Installing ${root.name}@${root.nextVersion}`
             await run(`npm install ${root.name}@${root.nextVersion}`, {
               cwd: dir
             })
-            spinnies.update(`${pkg.name}@next`, {
-              text: `[${dependant}+${root.nextVersion}] Running test suite`
-            })
+            dependantState.status = 'Running test suite'
             try {
               await run('npm test', { cwd: dir })
-              spinnies.succeed(`${pkg.name}@next`, {
-                text: `[${dependant}+${root.nextVersion}] Test suite passed`
-              })
+              dependantState.nextVersion.pass = true
             } catch (_) {
-              spinnies.fail(`${pkg.name}@next`, {
-                text: `[${dependant}+${root.nextVersion}] Test suite failed`
-              })
-              if (!stablePassed) {
-                setTimeout(() => {
-                  spinnies.remove(pkg.name)
-                  spinnies.remove(`${pkg.name}@next`)
-                }, removeDelay)
+              if (!dependantState.version.pass) {
+                cancel(state, dependantState, '')
               }
             }
+            dependantState.nextVersion.loading = false
+            dependantState.status = ''
           }
         }
       })
   )
+
+  clearInterval(iv)
 }
 
 module.exports = test
