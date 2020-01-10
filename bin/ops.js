@@ -32,11 +32,6 @@ const main = async () => {
     }
   ])
 
-  if (!name || !version) {
-    console.error('Usage: test-npm-dependants NAME STABLEVERSION [NEXTVERSION]')
-    process.exit(1)
-  }
-
   await test({ name, version, nextVersion })
 }
 
