@@ -5,15 +5,13 @@ const fetch = require('node-fetch')
 const semver = require('semver')
 const { tmpdir } = require('os')
 const { promises: fs } = require('fs')
-const { promisify } = require('util')
-const { exec } = require('child_process')
 const { join } = require('path')
 const fetchPackageSource = require('fetch-package-source')
 const createRender = require('./lib/render')
 const differ = require('ansi-diff-stream')
+const run = require('./lib/run')
 
 const removeDelay = 3000
-const run = promisify(exec)
 const cancel = (state, dependantState, text) => {
   dependantState.status = text
   setTimeout(() => {
