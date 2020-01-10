@@ -2,23 +2,33 @@
 
 const test = require('..')
 const { ux } = require('@cto.ai/sdk')
+const fetch = require('node-fetch')
 
 const main = async () => {
-  const { name, version, nextVersion } = await ux.prompt([
+  const { name } = await ux.prompt([
     {
       type: 'input',
       name: 'name',
-      message: 'Name of the module to test'
-    },
+      message: 'Name of the module to test',
+      default: 'express'
+    }
+  ])
+
+  const res = await fetch(`https://registry.npmjs.org/${name}`)
+  const json = await res.json()
+
+  const { version, nextVersion } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
-      message: 'Stable version of the module'
+      message: 'Stable version of the module',
+      default: json['dist-tags'].latest
     },
     {
       type: 'input',
       name: 'nextVersion',
-      message: 'Next version of the module'
+      message: 'Next version of the module',
+      default: json['dist-tags'].next
     }
   ])
 
