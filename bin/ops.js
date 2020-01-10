@@ -35,7 +35,7 @@ const main = async () => {
       type: 'input',
       name: 'nextVersion',
       message: 'Next version of the module',
-      default: semver.gt(next, latest) ? next : undefined,
+      default: next && semver.gt(next, latest) ? next : undefined,
       allowEmpty: true
     }
   ])
