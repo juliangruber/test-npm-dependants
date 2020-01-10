@@ -22,3 +22,6 @@ $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
 Tests will be run as child processes, so don't have a `TTY` attached. Any tests
 relying on it, for example those reading `process.stdout.columns`, are likely
 not going to work.
+
+If you want to debug why a test isn't passing, set `DEBUG=yes` and test output
+log file locations will be printed out. This _doesn't_ work with the `ops` cli.

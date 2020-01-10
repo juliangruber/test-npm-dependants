@@ -11,6 +11,7 @@ const createRender = require('./lib/render')
 const differ = require('ansi-diff-stream')
 const run = require('./lib/run')
 
+const { DEBUG: debug } = process.env
 const removeDelay = 3000
 const cancel = (state, dependantState, text) => {
   dependantState.status = text
@@ -102,9 +103,11 @@ const test = async ({ name, version, nextVersion }) => {
           try {
             await run('npm test', { cwd: dir })
             dependantState.version.pass = true
-          } catch (_) {}
+            dependantState.status = ''
+          } catch (err) {
+            dependantState.status = debug ? err.message : ''
+          }
           dependantState.version.loading = false
-          dependantState.status = ''
 
           if (root.nextVersion) {
             dependantState.status = `Installing ${root.name}@${root.nextVersion}`
