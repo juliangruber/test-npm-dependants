@@ -84,7 +84,7 @@ const test = async ({ name, version, nextVersion }) => {
           try {
             await fetchPackageSource(pkg.repository.url, pkg.version, dir)
           } catch (err) {
-            cancel(state, dependantState, err.message)
+            cancel(state, dependantState, err.code || err.message)
             continue
           }
           dependantState.status = 'Installing dependencies'
