@@ -50,3 +50,9 @@ not going to work.
 
 If you want to debug why a test isn't passing, pass `--verbose` and test output
 will be printed out.
+
+## Sponsors
+
+This project is [sponsored](https://github.com/sponsors/juliangruber) by [CTO.ai](https://cto.ai/), making it easy for development teams to create and share workflow automations without leaving the command line.
+
+[![](https://apex-software.imgix.net/github/sponsors/cto.png)](https://cto.ai/)
