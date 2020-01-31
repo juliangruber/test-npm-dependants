@@ -3,6 +3,17 @@
 ## Usage
 
 ```bash
+$ test-npm-dependants
+
+  test-npm-dependants NAME STABLEVERSION [NEXTVERSION]
+
+  Options:
+
+    --help, -h     Print help text
+    --version, -v  Print program version
+    --filter, -f   Filter dependant names by this regexp
+    --verbose, -V  Verbose mode
+
 $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
 ✓ [webpack-dev-server] Test suite passed
 ✖ [webpack-dev-server+5.0.0-alpha.7] Test suite failed
