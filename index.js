@@ -42,6 +42,7 @@ const test = async ({ name, version, nextVersion, filter, verbose }) => {
     }, 100)
   }
   const concurrency = verbose ? 1 : 5
+  const seen = new Set()
 
   await Promise.all(
     Array(concurrency)
@@ -49,6 +50,8 @@ const test = async ({ name, version, nextVersion, filter, verbose }) => {
       .map(async () => {
         for await (const dependant of iterator) {
           if (filter && !new RegExp(filter).test(dependant)) continue
+          if (seen.has(dependant)) continue
+          seen.add(dependant)
           const dependantState = {
             name: dependant,
             status: 'Loading package information',
