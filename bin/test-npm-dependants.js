@@ -5,6 +5,7 @@ process.title = 'test-npm-dependants'
 const test = require('..')
 const minimist = require('minimist')
 const pkg = require('../package')
+const { cpus } = require('os')
 
 const argv = minimist(process.argv.slice(2), {
   boolean: ['verbose', 'version', 'help'],
@@ -16,7 +17,7 @@ const argv = minimist(process.argv.slice(2), {
     help: 'h'
   },
   default: {
-    concurrency: 5
+    concurrency: cpus().length
   }
 })
 
@@ -43,7 +44,9 @@ if (!args.name || !args.version || argv.help) {
   console.log('    --help, -h         Print help text')
   console.log('    --version, -v      Print program version')
   console.log('    --filter, -f       Filter dependant names by this regexp')
-  console.log('    --concurrency, -c  Test concurrency [Default: 5]')
+  console.log(
+    `    --concurrency, -c  Test concurrency [Default: ${cpus().length}]`
+  )
   console.log('    --verbose, -V      Verbose mode')
   console.log()
   process.exit(Number(!argv.help))
