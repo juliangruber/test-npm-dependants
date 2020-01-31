@@ -20,7 +20,14 @@ const cancel = (state, dependantState, text) => {
   }, removeDelay)
 }
 
-const test = async ({ name, version, nextVersion, filter, verbose }) => {
+const test = async ({
+  name,
+  version,
+  nextVersion,
+  filter,
+  verbose,
+  concurrency
+}) => {
   const root = { name, version }
   const iterator = dependants(root.name)
 
@@ -40,7 +47,7 @@ const test = async ({ name, version, nextVersion, filter, verbose }) => {
       diff.write(render(state))
     }, 100)
   }
-  const concurrency = verbose ? 1 : 5
+  if (verbose) concurrency = 1
   const seen = new Set()
 
   await Promise.all(
@@ -48,7 +55,7 @@ const test = async ({ name, version, nextVersion, filter, verbose }) => {
       .fill()
       .map(async () => {
         for await (const dependant of iterator) {
-          if (filter && !new RegExp(filter).test(dependant)) continue
+          if (filter && !filter.test(dependant)) continue
           if (seen.has(dependant)) continue
           seen.add(dependant)
           const dependantState = {

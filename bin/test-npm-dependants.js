@@ -11,8 +11,12 @@ const argv = minimist(process.argv.slice(2), {
   alias: {
     filter: 'f',
     verbose: 'V',
+    concurrency: 'c',
     version: 'v',
     help: 'h'
+  },
+  default: {
+    concurrency: 5
   }
 })
 
@@ -25,8 +29,9 @@ const args = {
   name: argv._[0],
   version: argv._[1],
   nextVersion: argv._[2],
-  filter: argv.filter,
-  verbose: argv.verbose
+  filter: argv.filter && new RegExp(argv.filter),
+  verbose: argv.verbose,
+  concurrency: Number(argv.concurrency)
 }
 
 if (!args.name || !args.version || argv.help) {
@@ -35,10 +40,11 @@ if (!args.name || !args.version || argv.help) {
   console.log()
   console.log('  Options:')
   console.log()
-  console.log('    --help, -h     Print help text')
-  console.log('    --version, -v  Print program version')
-  console.log('    --filter, -f   Filter dependant names by this regexp')
-  console.log('    --verbose, -V  Verbose mode')
+  console.log('    --help, -h         Print help text')
+  console.log('    --version, -v      Print program version')
+  console.log('    --filter, -f       Filter dependant names by this regexp')
+  console.log('    --concurrency, -c  Test concurrency [Default: 5]')
+  console.log('    --verbose, -V      Verbose mode')
   console.log()
   process.exit(Number(!argv.help))
 }

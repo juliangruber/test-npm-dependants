@@ -11,10 +11,11 @@ $ test-npm-dependants
 
   Options:
 
-    --help, -h     Print help text
-    --version, -v  Print program version
-    --filter, -f   Filter dependant names by this regexp
-    --verbose, -V  Verbose mode
+    --help, -h         Print help text
+    --version, -v      Print program version
+    --filter, -f       Filter dependant names by this regexp
+    --concurrency, -c  Test concurrency [Default: 5]
+    --verbose, -V      Verbose mode
 
 $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
 
