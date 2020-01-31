@@ -11,7 +11,6 @@ const createRender = require('./lib/render')
 const differ = require('ansi-diff-stream')
 const run = require('./lib/run')
 
-const { DEBUG: debug } = process.env
 const removeDelay = 3000
 const cancel = (state, dependantState, text) => {
   dependantState.status = text
@@ -117,7 +116,7 @@ const test = async ({ name, version, nextVersion, filter, verbose }) => {
             dependantState.version.pass = true
             dependantState.status = ''
           } catch (err) {
-            dependantState.status = debug ? err.message : ''
+            dependantState.status = ''
           }
           dependantState.version.loading = false
 
