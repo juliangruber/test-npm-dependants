@@ -4,14 +4,21 @@ process.title = 'test-npm-dependants'
 
 const test = require('..')
 const minimist = require('minimist')
+const pkg = require('../package')
 
 const argv = minimist(process.argv.slice(2), {
-  boolean: ['verbose'],
+  boolean: ['verbose', 'version'],
   alias: {
     filter: 'f',
-    verbose: 'V'
+    verbose: 'V',
+    version: 'v'
   }
 })
+
+if (argv.version) {
+  console.log(pkg.version)
+  process.exit()
+}
 
 const args = {
   name: argv._[0],
