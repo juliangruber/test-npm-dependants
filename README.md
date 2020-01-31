@@ -53,9 +53,9 @@ $ npm install -g test-npm-dependants
 
 ## Security
 
-This is why you should avoid running untrusted code directly on your machine
-and run it via [Ops](https://cto.ai/) instead, which will sandbox everything
-inside Docker:
+Running untrusted code on your computer is dangerous. This is why you should use
+this project via [Ops](https://cto.ai/) instead, which will sandbox everything
+inside a Docker container:
 
 ![Why Sandbox](images/sandbox.png)
 
