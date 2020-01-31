@@ -7,6 +7,8 @@ const minimist = require('minimist')
 const pkg = require('../package')
 const { cpus } = require('os')
 
+const defaultConcurrency = Math.max(1, cpus().length - 1)
+
 const argv = minimist(process.argv.slice(2), {
   boolean: ['verbose', 'version', 'help'],
   alias: {
@@ -17,7 +19,7 @@ const argv = minimist(process.argv.slice(2), {
     help: 'h'
   },
   default: {
-    concurrency: cpus().length
+    concurrency: defaultConcurrency
   }
 })
 
@@ -45,7 +47,7 @@ if (!args.name || !args.version || argv.help) {
   console.log('    --version, -v      Print program version')
   console.log('    --filter, -f       Filter dependant names by this regexp')
   console.log(
-    `    --concurrency, -c  Test concurrency [Default: ${cpus().length}]`
+    `    --concurrency, -c  Test concurrency [Default: ${defaultConcurrency}]`
   )
   console.log('    --verbose, -V      Verbose mode')
   console.log()

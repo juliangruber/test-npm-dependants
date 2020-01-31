@@ -56,7 +56,7 @@ const main = async () => {
       type: 'input',
       name: 'concurrency',
       message: 'How many modules do you want to test at once?',
-      default: String(cpus().length),
+      default: String(Math.max(1, cpus().length - 1)),
       flag: 'c'
     },
     {
