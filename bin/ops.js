@@ -24,7 +24,7 @@ const main = async () => {
     'dist-tags': { latest, next }
   } = await res.json()
 
-  const { version, nextVersion, filter, stream } = await ux.prompt([
+  const { version, nextVersion, filter, verbose } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
@@ -46,12 +46,13 @@ const main = async () => {
     },
     {
       type: 'confirm',
-      name: 'stream',
-      message: 'Do you want to see the raw stream of data?'
+      name: 'verbose',
+      message: 'Do you want to run in verbose mode?',
+      flag: 'V'
     }
   ])
 
-  await test({ name, version, nextVersion, filter, stream })
+  await test({ name, version, nextVersion, filter, verbose })
 }
 
 main().catch(err => {

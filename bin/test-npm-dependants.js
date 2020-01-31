@@ -6,10 +6,10 @@ const test = require('..')
 const minimist = require('minimist')
 
 const argv = minimist(process.argv.slice(2), {
-  boolean: ['stream'],
+  boolean: ['verbose'],
   alias: {
     filter: 'f',
-    stream: 's'
+    verbose: 'V'
   }
 })
 
@@ -18,7 +18,7 @@ const args = {
   version: argv._[1],
   nextVersion: argv._[2],
   filter: argv.filter,
-  stream: argv.stream
+  verbose: argv.verbose
 }
 
 if (!args.name || !args.version) {
