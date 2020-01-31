@@ -24,7 +24,7 @@ const main = async () => {
     'dist-tags': { latest, next }
   } = await res.json()
 
-  const { version, nextVersion } = await ux.prompt([
+  const { version, nextVersion, filter, stream } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
@@ -37,10 +37,20 @@ const main = async () => {
       message: 'Next version of the module',
       default: next && semver.gt(next, latest) ? next : undefined,
       allowEmpty: true
+    },
+    {
+      type: 'input',
+      name: 'filter',
+      message: 'Do you want to filter by module name RegExp?'
+    },
+    {
+      type: 'confirm',
+      name: 'stream',
+      message: 'Do you want to see the raw stream of data?'
     }
   ])
 
-  await test({ name, version, nextVersion })
+  await test({ name, version, nextVersion, filter, stream })
 }
 
 main().catch(err => {

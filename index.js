@@ -21,27 +21,34 @@ const cancel = (state, dependantState, text) => {
   }, removeDelay)
 }
 
-const test = async ({ name, version, nextVersion }) => {
-  const root = { name, version, nextVersion }
+const test = async ({ name, version, nextVersion, filter, stream }) => {
+  const root = { name, version }
   const iterator = dependants(root.name)
 
   const state = {
     ...root,
+    nextVersion,
     dependants: []
   }
-  const render = createRender()
-  const diff = differ()
-  diff.pipe(process.stdout)
-  const iv = setInterval(() => {
-    diff.reset()
-    diff.write(render(state))
-  }, 100)
+
+  let iv
+  if (!stream) {
+    const render = createRender()
+    const diff = differ()
+    diff.pipe(process.stdout)
+    iv = setInterval(() => {
+      diff.reset()
+      diff.write(render(state))
+    }, 100)
+  }
+  const concurrency = stream ? 1 : 5
 
   await Promise.all(
-    Array(5)
+    Array(concurrency)
       .fill()
       .map(async () => {
         for await (const dependant of iterator) {
+          if (filter && !new RegExp(filter).test(dependant)) continue
           const dependantState = {
             name: dependant,
             status: 'Loading package information',
@@ -71,6 +78,7 @@ const test = async ({ name, version, nextVersion }) => {
             continue
           }
 
+          if (stream) console.log(`test ${pkg.name}@${pkg.version}`)
           const dir = join(
             tmpdir(),
             [
@@ -90,18 +98,19 @@ const test = async ({ name, version, nextVersion }) => {
           }
           dependantState.status = 'Installing dependencies'
           try {
-            await run('npm install', { cwd: dir })
+            await run('npm install', { cwd: dir, stream })
           } catch (_) {
             cancel(state, dependantState, 'Installation failed')
             continue
           }
           dependantState.status = `Installing ${root.name}@${root.version}`
           await run(`npm install ${root.name}@${root.version}`, {
-            cwd: dir
+            cwd: dir,
+            stream
           })
           dependantState.status = 'Running test suite'
           try {
-            await run('npm test', { cwd: dir })
+            await run('npm test', { cwd: dir, stream })
             dependantState.version.pass = true
             dependantState.status = ''
           } catch (err) {
@@ -109,14 +118,15 @@ const test = async ({ name, version, nextVersion }) => {
           }
           dependantState.version.loading = false
 
-          if (root.nextVersion) {
-            dependantState.status = `Installing ${root.name}@${root.nextVersion}`
-            await run(`npm install ${root.name}@${root.nextVersion}`, {
-              cwd: dir
+          if (nextVersion) {
+            dependantState.status = `Installing ${root.name}@${nextVersion}`
+            await run(`npm install ${root.name}@${nextVersion}`, {
+              cwd: dir,
+              stream
             })
             dependantState.status = 'Running test suite'
             try {
-              await run('npm test', { cwd: dir })
+              await run('npm test', { cwd: dir, stream })
               dependantState.nextVersion.pass = true
             } catch (_) {
               if (!dependantState.version.pass) {
@@ -130,7 +140,7 @@ const test = async ({ name, version, nextVersion }) => {
       })
   )
 
-  clearInterval(iv)
+  if (!stream) clearInterval(iv)
 }
 
 module.exports = test
