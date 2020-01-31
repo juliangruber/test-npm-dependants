@@ -27,12 +27,12 @@ $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
    next: 5.0.0-alpha.7
 
     ⠼ ⠼  loopback Running test suite
-    ✓ ×  hubot
+    ✓ ×  hubot Breaks
     ⠼ ⠼  @theia/core Installing dependencies
-    ✓ ×  probot
-    ✓ ✓  @frctl/fractal
+    ✓ ×  probot Breaks
+    ✓ ✓  @frctl/fractal Passes
     ⠼ ⠼  node-red Installing dependencies
-    ✓ ✓  ember-cli
+    ✓ ✓  ember-cli Passes
     ⠼ ⠼  firebase-tools Running test suite
     ⠼ ⠼  appium-base-driver Running test suite
 

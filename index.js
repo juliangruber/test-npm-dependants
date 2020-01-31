@@ -143,7 +143,17 @@ const test = async ({
               }
             }
             dependantState.nextVersion.loading = false
-            dependantState.status = ''
+            if (dependantState.version.pass) {
+              if (dependantState.nextVersion.pass) {
+                dependantState.status = 'Passes'
+              } else {
+                dependantState.status = 'Breaks'
+              }
+            } else {
+              if (dependantState.nextVersion.pass) {
+                dependantState.status = 'Fixed'
+              }
+            }
           }
         }
       })
