@@ -1,5 +1,7 @@
 # test-npm-dependants
 
+Run the test suites of all modules depending on a given module.
+
 ## Usage
 
 Use the CLI:
