@@ -41,8 +41,9 @@ const main = async () => {
     {
       type: 'input',
       name: 'filter',
-      message: 'Do you want to filter by module name RegExp?',
-      allowEmpty: true
+      message: 'Filter dependants by module name regular expression?',
+      allowEmpty: true,
+      flag: 'f'
     },
     {
       type: 'confirm',
