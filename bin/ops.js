@@ -4,7 +4,6 @@ const test = require('..')
 const { ux } = require('@cto.ai/sdk')
 const fetch = require('node-fetch')
 const semver = require('semver')
-const { cpus } = require('os')
 
 const main = async () => {
   const { name } = await ux.prompt([
@@ -56,7 +55,7 @@ const main = async () => {
       type: 'input',
       name: 'concurrency',
       message: 'How many modules do you want to test at once?',
-      default: String(Math.max(1, cpus().length - 1)),
+      default: '4',
       flag: 'c'
     },
     {

@@ -5,9 +5,8 @@ process.title = 'test-npm-dependants'
 const test = require('..')
 const minimist = require('minimist')
 const pkg = require('../package')
-const { cpus } = require('os')
 
-const defaultConcurrency = Math.max(1, cpus().length - 1)
+const defaultConcurrency = 4
 
 const argv = minimist(process.argv.slice(2), {
   boolean: ['verbose', 'version', 'help'],
