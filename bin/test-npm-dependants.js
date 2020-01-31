@@ -7,11 +7,12 @@ const minimist = require('minimist')
 const pkg = require('../package')
 
 const argv = minimist(process.argv.slice(2), {
-  boolean: ['verbose', 'version'],
+  boolean: ['verbose', 'version', 'help'],
   alias: {
     filter: 'f',
     verbose: 'V',
-    version: 'v'
+    version: 'v',
+    help: 'h'
   }
 })
 
@@ -28,9 +29,18 @@ const args = {
   verbose: argv.verbose
 }
 
-if (!args.name || !args.version) {
-  console.error('Usage: test-npm-dependants NAME STABLEVERSION [NEXTVERSION]')
-  process.exit(1)
+if (!args.name || !args.version || argv.help) {
+  console.log()
+  console.log('  test-npm-dependants NAME STABLEVERSION [NEXTVERSION]')
+  console.log()
+  console.log('  Options:')
+  console.log()
+  console.log('    --help, -h     Print help text')
+  console.log('    --version, -v  Print program version')
+  console.log('    --filter, -f   Filter dependant names by this regexp')
+  console.log('    --verbose, -V  Verbose mode')
+  console.log()
+  process.exit(Number(!argv.help))
 }
 
 test(args).catch(err => {
