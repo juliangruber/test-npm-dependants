@@ -36,11 +36,26 @@ $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
 
 ```
 
+Use as an [Op](https://cto.ai/):
+
+```bash
+$ npm install -g @cto.ai/ops && ops account:signup
+$ ops run @juliangruber/test-npm-dependants
+```
+
 ## Installation
 
 ```bash
 $ npm install -g test-npm-dependants
 ```
+
+## Security
+
+This is why you should avoid running untrusted code directly on your machine
+and run it via [Ops](https://cto.ai/) instead, which will sandbox everything
+inside Docker:
+
+![Why Sandbox](images/sandbox.png)
 
 ## Caveats
 
