@@ -24,13 +24,7 @@ const main = async () => {
     'dist-tags': { latest, next }
   } = await res.json()
 
-  const {
-    version,
-    nextVersion,
-    filter,
-    concurrency,
-    verbose
-  } = await ux.prompt([
+  const { version, nextVersion, filter, verbose } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
@@ -52,19 +46,25 @@ const main = async () => {
       flag: 'f'
     },
     {
-      type: 'input',
-      name: 'concurrency',
-      message: 'How many modules do you want to test at once?',
-      default: '4',
-      flag: 'c'
-    },
-    {
       type: 'confirm',
       name: 'verbose',
       message: 'Do you want to run in verbose mode?',
       flag: 'V'
     }
   ])
+
+  let concurrency
+  if (!verbose) {
+    ;({ concurrency } = await ux.prompt([
+      {
+        type: 'input',
+        name: 'concurrency',
+        message: 'How many modules do you want to test at once?',
+        default: '4',
+        flag: 'c'
+      }
+    ]))
+  }
 
   await test({
     name,
