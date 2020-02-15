@@ -35,7 +35,8 @@ const test = async ({
   const state = {
     ...root,
     nextVersion,
-    dependants: []
+    dependants: [],
+    start: new Date()
   }
 
   let iv

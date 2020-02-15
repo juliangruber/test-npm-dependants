@@ -18,6 +18,7 @@
     "fetch-package-source": "^1.0.0",
     "github-url-to-object": "^4.0.4",
     "minimist": "^1.2.0",
+    "ms": "^2.1.2",
     "node-fetch": "^2.6.0",
     "npm-dependants": "^2.1.0",
     "semver": "^7.1.1"
