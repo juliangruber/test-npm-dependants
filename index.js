@@ -25,6 +25,7 @@ const test = async ({
   version,
   nextVersion,
   filter,
+  timeout,
   verbose,
   concurrency
 }) => {
@@ -107,7 +108,7 @@ const test = async ({
           }
           dependantState.status = 'Installing dependencies'
           try {
-            await run('npm install', { cwd: dir, verbose })
+            await run('npm install', { cwd: dir, verbose, timeout })
           } catch (_) {
             cancel(state, dependantState, 'Installation failed')
             continue
@@ -119,7 +120,7 @@ const test = async ({
           })
           dependantState.status = 'Running test suite'
           try {
-            await run('npm test', { cwd: dir, verbose })
+            await run('npm test', { cwd: dir, verbose, timeout })
             dependantState.version.pass = true
             dependantState.status = ''
           } catch (err) {
@@ -135,7 +136,7 @@ const test = async ({
             })
             dependantState.status = 'Running test suite'
             try {
-              await run('npm test', { cwd: dir, verbose })
+              await run('npm test', { cwd: dir, verbose, timeout })
               dependantState.nextVersion.pass = true
             } catch (_) {
               if (!dependantState.version.pass) {

@@ -24,7 +24,7 @@ const main = async () => {
     'dist-tags': { latest, next }
   } = await res.json()
 
-  const { version, nextVersion, filter, verbose } = await ux.prompt([
+  const { version, nextVersion, filter, timeout, verbose } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
@@ -44,6 +44,14 @@ const main = async () => {
       message: 'Filter dependants by module name regular expression?',
       allowEmpty: true,
       flag: 'f'
+    },
+    {
+      type: 'input',
+      name: 'timeout',
+      message: 'Time out processes after x seconds?',
+      allowEmpty: true,
+      flag: 't',
+      default: '300'
     },
     {
       type: 'confirm',
@@ -71,6 +79,7 @@ const main = async () => {
     version,
     nextVersion,
     filter: filter && new RegExp(filter),
+    timeout: timeout * 1000,
     verbose,
     concurrency: Number(concurrency)
   })

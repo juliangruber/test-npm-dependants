@@ -6,7 +6,10 @@ const test = require('..')
 const minimist = require('minimist')
 const pkg = require('../package')
 
-const defaultConcurrency = 4
+const defaults = {
+  concurrency: 4,
+  timeout: 300
+}
 
 const argv = minimist(process.argv.slice(2), {
   boolean: ['verbose', 'version', 'help'],
@@ -14,11 +17,13 @@ const argv = minimist(process.argv.slice(2), {
     filter: 'f',
     verbose: 'V',
     concurrency: 'c',
+    timeout: 't',
     version: 'v',
     help: 'h'
   },
   default: {
-    concurrency: defaultConcurrency
+    concurrency: defaults.concurrency,
+    timeout: defaults.timeout
   }
 })
 
@@ -33,7 +38,8 @@ const args = {
   nextVersion: argv._[2],
   filter: argv.filter && new RegExp(argv.filter),
   verbose: argv.verbose,
-  concurrency: Number(argv.concurrency)
+  concurrency: Number(argv.concurrency),
+  timeout: 1000 * Number(argv.timeout)
 }
 
 if (!args.name || !args.version || argv.help) {
@@ -46,7 +52,10 @@ if (!args.name || !args.version || argv.help) {
   console.log('    --version, -v      Print program version')
   console.log('    --filter, -f       Filter dependant names by this regexp')
   console.log(
-    `    --concurrency, -c  Test concurrency [Default: ${defaultConcurrency}]`
+    `    --concurrency, -c  Test concurrency [Default: ${defaults.concurrency}]`
+  )
+  console.log(
+    `    --timeout, -t      Time out processes after x seconds [Default: ${defaults.timeout}]`
   )
   console.log('    --verbose, -V      Verbose mode')
   console.log()
