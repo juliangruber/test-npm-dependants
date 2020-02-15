@@ -39,10 +39,10 @@ const test = async ({
     start: new Date()
   }
 
-  let iv
+  let iv, render, diff
   if (!verbose) {
-    const render = createRender()
-    const diff = differ()
+    render = createRender()
+    diff = differ()
     diff.pipe(process.stdout)
     iv = setInterval(() => {
       diff.reset()
@@ -161,6 +161,11 @@ const test = async ({
       })
   )
 
+  if (!seen.size) {
+    state.error = `${root.name} has no dependants`
+    diff.reset()
+    diff.write(render(state))
+  }
   if (!verbose) clearInterval(iv)
 }
 
