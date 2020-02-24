@@ -8,6 +8,7 @@
     "test-npm-dependants": "bin/test-npm-dependants.js"
   },
   "scripts": {
+    "release": "np",
     "test": "prettier-standard && standard"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "semver": "^7.1.1"
   },
   "devDependencies": {
+    "np": "^6.1.0",
     "prettier-standard": "^16.1.0",
     "standard": "^14.3.1"
   }
