@@ -17,6 +17,7 @@ $ test-npm-dependants
     --version, -v      Print program version
     --filter, -f       Filter dependant names by this regexp
     --concurrency, -c  Test concurrency [Default: 4]
+    --timeout, -t      Time out processes after x seconds [Default: 300]
     --verbose, -V      Verbose mode
 
 $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
@@ -25,6 +26,7 @@ $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
 
  stable: 4.17.1
    next: 5.0.0-alpha.7
+   time: 3m
 
     ⠼ ⠼  loopback Running test suite
     ✓ ×  hubot Breaks
