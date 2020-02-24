@@ -1,6 +1,6 @@
 {
   "name": "test-npm-dependants",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "license": "MIT",
   "repository": "juliangruber/test-npm-dependants",
   "description": "Run the test suites of all modules depending on a given module",
