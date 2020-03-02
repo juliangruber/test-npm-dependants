@@ -2,6 +2,8 @@
 
 Run the test suites of all modules depending on a given module.
 
+[__Read the blog post__](https://cto.ai/blog/ops-by-example-test-npm-dependants/).
+
 ## Usage
 
 Use the CLI:
