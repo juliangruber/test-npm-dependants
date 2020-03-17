@@ -1,7 +1,7 @@
 'use strict'
 
 const test = require('..')
-const { ux } = require('@cto.ai/sdk')
+const { sdk, ux } = require('@cto.ai/sdk')
 const fetch = require('node-fetch')
 const semver = require('semver')
 
@@ -24,7 +24,7 @@ const main = async () => {
     'dist-tags': { latest, next }
   } = await res.json()
 
-  const { version, nextVersion, filter, timeout, output } = await ux.prompt([
+  const { version, nextVersion, filter, timeout } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
@@ -52,15 +52,22 @@ const main = async () => {
       allowEmpty: true,
       flag: 't',
       default: '300'
-    },
-    {
-      type: 'list',
-      name: 'output',
-      message: 'Output mode',
-      flag: 'o',
-      choices: ['terminal', 'verbose', 'slack']
     }
   ])
+
+  let output = sdk.getInterfaceType()
+
+  if (output === 'terminal') {
+    const { verbose } = await ux.prompt([
+      {
+        type: 'confirm',
+        name: 'verbose',
+        message: 'Run in verbose mode?',
+        default: false
+      }
+    ])
+    if (verbose) output = 'verbose'
+  }
 
   let concurrency
   if (output !== 'verbose') {

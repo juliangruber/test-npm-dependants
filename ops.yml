@@ -1,7 +1,7 @@
 # For more info see https://cto.ai/docs/ops-reference
 version: '1'
 commands:
-  - name: test-npm-dependants:1.0.0
+  - name: test-npm-dependants:1.1.0
     description: Run the test suites of all modules depending on a given module.
     public: true
     sdk: '2'
