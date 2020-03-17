@@ -130,8 +130,12 @@ const test = async ({
           dependantState.version.loading = false
 
           if (nextVersion) {
-            dependantState.status = `Installing ${root.name}@${nextVersion}`
-            await run(`npm install ${root.name}@${nextVersion}`, {
+            const nameVersion = nextVersion.includes('#')
+              ? `${root.name}${nextVersion}`
+              : nextVersion
+            dependantState.status = `Installing ${nextVersion}`
+            await run('which git')
+            await run(`npm install ${nextVersion}`, {
               cwd: dir,
               verbose
             })

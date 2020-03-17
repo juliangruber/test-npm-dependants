@@ -34,8 +34,8 @@ const main = async () => {
     {
       type: 'input',
       name: 'nextVersion',
-      message: 'Next version of the module',
-      default: next && semver.gt(next, latest) ? next : undefined,
+      message: 'Next version or branch of the module',
+      default: 'bluelovers/express#patch-1',
       allowEmpty: true
     },
     {
@@ -57,7 +57,8 @@ const main = async () => {
       type: 'confirm',
       name: 'verbose',
       message: 'Do you want to run in verbose mode?',
-      flag: 'V'
+      flag: 'V',
+      default: true
     }
   ])
 

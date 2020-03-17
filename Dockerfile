@@ -5,7 +5,7 @@ FROM node:12-alpine AS dep
 
 WORKDIR /ops
 
-RUN apk add python make git openssh
+RUN apk add --no-cache python make git openssh
 ADD package.json .
 RUN npm install
 
