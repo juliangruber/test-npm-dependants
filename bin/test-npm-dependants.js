@@ -12,10 +12,10 @@ const defaults = {
 }
 
 const argv = minimist(process.argv.slice(2), {
-  boolean: ['verbose', 'version', 'help'],
+  boolean: ['version', 'help'],
   alias: {
     filter: 'f',
-    verbose: 'V',
+    output: 'o',
     concurrency: 'c',
     timeout: 't',
     version: 'v',
@@ -23,7 +23,8 @@ const argv = minimist(process.argv.slice(2), {
   },
   default: {
     concurrency: defaults.concurrency,
-    timeout: defaults.timeout
+    timeout: defaults.timeout,
+    output: 'terminal'
   }
 })
 
@@ -37,7 +38,7 @@ const args = {
   version: argv._[1],
   nextVersion: argv._[2],
   filter: argv.filter && new RegExp(argv.filter),
-  verbose: argv.verbose,
+  output: argv.output,
   concurrency: Number(argv.concurrency),
   timeout: 1000 * Number(argv.timeout)
 }
@@ -57,7 +58,9 @@ if (!args.name || !args.version || argv.help) {
   console.log(
     `    --timeout, -t      Time out processes after x seconds [Default: ${defaults.timeout}]`
   )
-  console.log('    --verbose, -V      Verbose mode')
+  console.log(
+    '    --output, -o       Output mode [terminal, verbose] [Default: terminal]'
+  )
   console.log()
   process.exit(Number(!argv.help))
 }

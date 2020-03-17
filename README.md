@@ -2,7 +2,7 @@
 
 Run the test suites of all modules depending on a given module.
 
-[__Read the blog post__](https://cto.ai/blog/ops-by-example-test-npm-dependants/).
+[**Read the blog post**](https://cto.ai/blog/ops-by-example-test-npm-dependants/).
 
 ## Usage
 
@@ -20,7 +20,7 @@ $ test-npm-dependants
     --filter, -f       Filter dependant names by this regexp
     --concurrency, -c  Test concurrency [Default: 4]
     --timeout, -t      Time out processes after x seconds [Default: 300]
-    --verbose, -V      Verbose mode
+    --output, -o       Output mode [terminal, verbose] [Default: terminal]
 
 $ test-npm-dependants express 4.17.1 5.0.0-alpha.7
 

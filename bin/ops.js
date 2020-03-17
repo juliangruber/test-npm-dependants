@@ -24,7 +24,7 @@ const main = async () => {
     'dist-tags': { latest, next }
   } = await res.json()
 
-  const { version, nextVersion, filter, timeout, verbose } = await ux.prompt([
+  const { version, nextVersion, filter, timeout, output } = await ux.prompt([
     {
       type: 'input',
       name: 'version',
@@ -54,21 +54,22 @@ const main = async () => {
       default: '300'
     },
     {
-      type: 'confirm',
-      name: 'verbose',
-      message: 'Do you want to run in verbose mode?',
-      flag: 'V'
+      type: 'list',
+      name: 'output',
+      message: 'Output mode',
+      flag: 'o',
+      choices: ['terminal', 'verbose', 'slack']
     }
   ])
 
   let concurrency
-  if (!verbose) {
+  if (output !== 'verbose') {
     ;({ concurrency } = await ux.prompt([
       {
-        type: 'input',
+        type: 'number',
         name: 'concurrency',
         message: 'How many modules do you want to test at once?',
-        default: '4',
+        default: 4,
         flag: 'c'
       }
     ]))
@@ -80,8 +81,8 @@ const main = async () => {
     nextVersion,
     filter: filter && new RegExp(filter),
     timeout: timeout * 1000,
-    verbose,
-    concurrency: Number(concurrency)
+    output,
+    concurrency
   })
 }
 

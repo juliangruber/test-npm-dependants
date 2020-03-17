@@ -10,6 +10,7 @@ const fetchPackageSource = require('fetch-package-source')
 const createRender = require('./lib/render')
 const differ = require('ansi-diff-stream')
 const run = require('./lib/run')
+const { ux } = require('@cto.ai/sdk')
 
 const removeDelay = 3000
 const cancel = (state, dependantState, text) => {
@@ -26,7 +27,7 @@ const test = async ({
   nextVersion,
   filter,
   timeout,
-  verbose,
+  output,
   concurrency
 }) => {
   const root = { name, version }
@@ -40,7 +41,7 @@ const test = async ({
   }
 
   let iv, render, diff
-  if (!verbose) {
+  if (output === 'terminal') {
     render = createRender()
     diff = differ()
     diff.pipe(process.stdout)
@@ -48,8 +49,9 @@ const test = async ({
       diff.reset()
       diff.write(render(state))
     }, 100)
+  } else if (output === 'verbose') {
+    concurrency = 1
   }
-  if (verbose) concurrency = 1
   const seen = new Set()
 
   await Promise.all(
@@ -89,7 +91,9 @@ const test = async ({
             continue
           }
 
-          if (verbose) console.log(`test ${pkg.name}@${pkg.version}`)
+          if (output === 'verbose') {
+            console.log(`test ${pkg.name}@${pkg.version}`)
+          }
           const dir = join(
             tmpdir(),
             [
@@ -109,7 +113,11 @@ const test = async ({
           }
           dependantState.status = 'Installing dependencies'
           try {
-            await run('npm install', { cwd: dir, verbose, timeout })
+            await run('npm install', {
+              cwd: dir,
+              verbose: output === 'verbose',
+              timeout
+            })
           } catch (_) {
             cancel(state, dependantState, 'Installation failed')
             continue
@@ -117,11 +125,15 @@ const test = async ({
           dependantState.status = `Installing ${root.name}@${root.version}`
           await run(`npm install ${root.name}@${root.version}`, {
             cwd: dir,
-            verbose
+            verbose: output === 'verbose'
           })
           dependantState.status = 'Running test suite'
           try {
-            await run('npm test', { cwd: dir, verbose, timeout })
+            await run('npm test', {
+              cwd: dir,
+              verbose: output === 'verbose',
+              timeout
+            })
             dependantState.version.pass = true
             dependantState.status = ''
           } catch (err) {
@@ -133,11 +145,15 @@ const test = async ({
             dependantState.status = `Installing ${root.name}@${nextVersion}`
             await run(`npm install ${root.name}@${nextVersion}`, {
               cwd: dir,
-              verbose
+              verbose: output === 'verbose'
             })
             dependantState.status = 'Running test suite'
             try {
-              await run('npm test', { cwd: dir, verbose, timeout })
+              await run('npm test', {
+                cwd: dir,
+                verbose: output === 'verbose',
+                timeout
+              })
               dependantState.nextVersion.pass = true
             } catch (_) {
               if (!dependantState.version.pass) {
@@ -148,12 +164,21 @@ const test = async ({
             if (dependantState.version.pass) {
               if (dependantState.nextVersion.pass) {
                 dependantState.status = 'Passes'
+                if (output === 'slack') {
+                  ux.print(`${pkg.name}@${pkg.version} still passes`)
+                }
               } else {
                 dependantState.status = 'Breaks'
+                if (output === 'slack') {
+                  ux.print(`${pkg.name}@${pkg.version} breaks`)
+                }
               }
             } else {
               if (dependantState.nextVersion.pass) {
                 dependantState.status = 'Fixed'
+                if (output === 'slack') {
+                  ux.print(`${pkg.name}@${pkg.version} was fixed`)
+                }
               }
             }
           }
@@ -163,10 +188,12 @@ const test = async ({
 
   if (!seen.size) {
     state.error = `${root.name} has no dependants`
-    diff.reset()
-    diff.write(render(state))
+    if (output === 'terminal') {
+      diff.reset()
+      diff.write(render(state))
+    }
   }
-  if (!verbose) clearInterval(iv)
+  if (output === 'terminal') clearInterval(iv)
 }
 
 module.exports = test
