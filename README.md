@@ -4,6 +4,8 @@ Run the test suites of all modules depending on a given module.
 
 [**Read the blog post**](https://cto.ai/blog/ops-by-example-test-npm-dependants/).
 
+<img src='images/express-alpha.png' alt='express-alpha' width=800 />
+
 ## Usage
 
 Use the CLI:
