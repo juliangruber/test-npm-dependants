@@ -14,7 +14,7 @@
   "dependencies": {
     "@cto.ai/sdk": "^2.0.3",
     "ansi-diff-stream": "^1.2.1",
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "cli-spinners": "^2.2.0",
     "execa": "^4.0.0",
     "fetch-package-source": "^1.0.0",
